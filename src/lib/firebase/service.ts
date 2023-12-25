@@ -1,8 +1,11 @@
 import {
   collection,
   doc,
-  addDoc,
   getDocs,
+  addDoc,
+  getDoc,
+  DocumentReference,
+  DocumentData,
   query,
   where,
   getFirestore,
@@ -22,9 +25,22 @@ export async function retrieveData(collectionName: string) {
   return data;
 }
 
+// export async function retriveDataById(collectionName: string, id: string) {
+//   const snapshot = await getDocs(doc(firestore, collectionName, id));
+//   const data = snapshot.data();
+//   return data;
+// }
+
 export async function retriveDataById(collectionName: string, id: string) {
-  const snapshot = await getDocs(doc(firestore, collectionName, id));
+  const documentRef: DocumentReference<DocumentData> = doc(
+    firestore,
+    collectionName,
+    id
+  );
+
+  const snapshot = await getDoc(documentRef);
   const data = snapshot.data();
+
   return data;
 }
 
@@ -111,7 +127,7 @@ export async function loginwithGoogle(data: any, callback: Function) {
     callback(user[0]);
   } else {
     data.role = "member";
-    await addDoc(collection(firestore, "users", data));
+    await addDoc(collection(firestore, "users"), data);
     callback(data); // Pindahkan ini ke sini agar hanya dijalankan jika pengguna tidak ditemukan.
   }
 
@@ -124,6 +140,8 @@ export async function loginwithGoogle(data: any, callback: Function) {
   //   );
   // }
 }
+
+// Example data structure, replace this with your actual user data structure
 
 // export async function loginwithGoogle(
 //   data: any,

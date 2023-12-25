@@ -1,12 +1,27 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import styles from "./Navbar.module.scss";
-const Navbar = () => {
-  const { data } = useSession();
+
+type UserType = {
+  name?: string | null | undefined;
+  email?: string | null | undefined;
+  image?: string | null | undefined;
+  fullname?: string | null | undefined;
+};
+
+type ComponentProps = {
+  data?: {
+    user?: UserType | null | undefined;
+  };
+};
+
+const Navbar: React.FC<ComponentProps> = ({ data: propData }) => {
+  const { data: sessionData } = useSession(); // Use a different name for clarity
+
   return (
     <div className={styles.navbar}>
-      {data && data.user ? (
+      {sessionData && sessionData.user ? (
         <div className={styles.navbar__logo}>
-          Selamat datang: {data.user.fullname}
+          Selamat datang: {sessionData.user.name}
         </div>
       ) : (
         <div className={styles.navbar__logo}>
@@ -16,10 +31,16 @@ const Navbar = () => {
       <button
         className={styles.navbar__button}
         onClick={() => {
-          data ? signOut() : signIn();
+          if (sessionData && sessionData.user) {
+            signOut();
+          } else {
+            signIn();
+          }
         }}
       >
-        {data ? `Logout (${data.user.email})` : "Login"}
+        {sessionData && sessionData.user && sessionData.user.email
+          ? `Logout (${sessionData.user.email})`
+          : "Login"}
       </button>
     </div>
   );
